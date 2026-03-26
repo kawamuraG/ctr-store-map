@@ -476,7 +476,19 @@ function extractPrefecture(address) {
   return 'その他';
 }
 
+// 全角数字・記号を半角に正規化する
+function normalizeAddress(addr) {
+  return addr
+    .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))  // 全角数字→半角
+    .replace(/[Ａ-Ｚａ-ｚ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))  // 全角英字→半角
+    .replace(/[－ー―‐]/g, '-')   // 全角ハイフン・長音符→半角ハイフン
+    .replace(/　/g, ' ')           // 全角スペース→半角スペース
+    .replace(/[〜～]/g, '~')       // 全角チルダ→半角
+    .trim();
+}
+
 async function geocodeAddress(addr) {
+  addr = normalizeAddress(addr);
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1&countrycodes=jp&addressdetails=1`;
   const res = await fetch(url, {headers:{'Accept-Language':'ja'}});
   const data = await res.json();
