@@ -13,50 +13,69 @@
     #header {
       background: #c8102e;
       color: white;
-      padding: 12px 20px;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.25);
       position: relative;
       z-index: 1000;
+      flex-wrap: wrap;
     }
-    #header h1 { font-size: 19px; font-weight: bold; letter-spacing: 0.04em; }
-    #header .subtitle { font-size: 12px; opacity: 0.85; margin-top: 2px; }
-    #count-badge {
-      margin-left: auto;
-      background: white;
-      color: #c8102e;
-      font-weight: bold;
-      font-size: 13px;
-      padding: 4px 14px;
-      border-radius: 20px;
-    }
+    #header h1 { font-size: 18px; font-weight: bold; letter-spacing: 0.04em; white-space: nowrap; }
+    #header .subtitle { font-size: 11px; opacity: 0.85; margin-top: 2px; }
 
-    /* エリア切り替えボタン */
-    #area-btns {
-      display: flex;
-      gap: 6px;
-      margin-left: 16px;
-    }
+    #area-btns { display: flex; gap: 5px; flex-wrap: wrap; }
     .area-btn {
       background: rgba(255,255,255,0.2);
       color: white;
       border: 1.5px solid rgba(255,255,255,0.5);
-      padding: 4px 12px;
+      padding: 4px 11px;
       border-radius: 16px;
       font-size: 12px;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.15s;
+      white-space: nowrap;
     }
     .area-btn:hover, .area-btn.active { background: white; color: #c8102e; }
+
+    #add-store-btn {
+      margin-left: auto;
+      background: white;
+      color: #c8102e;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      transition: transform 0.1s, box-shadow 0.1s;
+      white-space: nowrap;
+    }
+    #add-store-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+    #count-badge {
+      background: rgba(255,255,255,0.25);
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      border: 1.5px solid rgba(255,255,255,0.4);
+    }
 
     #main { display: flex; height: calc(100vh - 52px); }
     #map { flex: 1; position: relative; }
 
     #sidebar {
-      width: 270px;
+      width: 265px;
       background: white;
       overflow-y: auto;
       border-left: 1px solid #ddd;
@@ -73,22 +92,20 @@
       z-index: 10;
     }
     .store-item {
-      padding: 9px 14px;
+      padding: 9px 12px;
       border-bottom: 1px solid #f0f0f0;
       cursor: pointer;
       transition: background 0.12s;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
     }
     .store-item:hover { background: #fff5f5; }
-    .store-item.active {
-      background: #ffeaea;
-      border-left: 3px solid #c8102e;
-      padding-left: 11px;
-    }
+    .store-item.active { background: #ffeaea; border-left: 3px solid #c8102e; padding-left: 9px; }
+    .store-item.new-store { background: #f0fff4; }
+    .store-item.new-store:hover { background: #e0ffe8; }
     .store-dot {
-      width: 28px; height: 28px;
+      width: 27px; height: 27px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 11px; font-weight: bold; color: white;
@@ -99,35 +116,109 @@
     .store-info { flex: 1; min-width: 0; }
     .store-no { font-size: 10px; color: #aaa; }
     .store-name { font-size: 13px; font-weight: bold; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pref-tag {
-      display: inline-block;
-      font-size: 10px;
-      padding: 1px 6px;
-      border-radius: 8px;
-      font-weight: bold;
-      margin-top: 2px;
+    .pref-tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: bold; margin-top: 2px; }
+    .delete-btn {
+      background: none; border: none; color: #ccc; cursor: pointer;
+      font-size: 15px; padding: 2px 4px; border-radius: 4px;
+      transition: color 0.15s; flex-shrink: 0;
     }
+    .delete-btn:hover { color: #e74c3c; }
 
-    /* 凡例 */
     #legend {
-      position: absolute;
-      bottom: 28px;
-      left: 10px;
-      z-index: 1000;
-      background: white;
-      padding: 9px 13px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      font-size: 11px;
+      position: absolute; bottom: 28px; left: 10px; z-index: 1000;
+      background: white; padding: 9px 13px; border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 11px;
     }
     #legend h3 { font-size: 11px; color: #555; margin-bottom: 7px; font-weight: bold; }
     .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
     .legend-dot { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; }
 
+    /* ===== モーダル ===== */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 9000;
+      align-items: center; justify-content: center;
+    }
+    #modal-overlay.open { display: flex; }
+    #modal {
+      background: white; border-radius: 14px;
+      width: 420px; max-width: 95vw;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+      overflow: hidden;
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    #modal-header {
+      background: #c8102e; color: white;
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #modal-header h2 { font-size: 16px; font-weight: bold; }
+    #modal-close {
+      background: none; border: none; color: white;
+      font-size: 22px; cursor: pointer; line-height: 1;
+      padding: 0 4px; opacity: 0.8;
+    }
+    #modal-close:hover { opacity: 1; }
+    #modal-body { padding: 22px 22px 10px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 6px; }
+    .form-group label .req { color: #c8102e; margin-left: 3px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid #ddd; border-radius: 8px;
+      font-size: 14px; font-family: inherit;
+      transition: border-color 0.15s; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: #c8102e;
+      box-shadow: 0 0 0 3px rgba(200,16,46,0.1);
+    }
+    .form-group input.error { border-color: #e74c3c; }
+    .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+    .form-error { font-size: 11px; color: #e74c3c; margin-top: 4px; display: none; }
+    .form-error.show { display: block; }
+
+    #geocode-status {
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 12px; margin-bottom: 12px; display: none;
+      align-items: center; gap: 8px;
+    }
+    #geocode-status.loading { display: flex; background: #f0f7ff; color: #2980b9; border: 1px solid #bee3f8; }
+    #geocode-status.success { display: flex; background: #f0fff4; color: #27ae60; border: 1px solid #9ae6b4; }
+    #geocode-status.error   { display: flex; background: #fff5f5; color: #e74c3c; border: 1px solid #fed7d7; }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid #bee3f8; border-top-color: #2980b9;
+      border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #modal-footer { padding: 0 22px 20px; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-cancel {
+      padding: 9px 20px; border: 1.5px solid #ddd;
+      background: white; color: #666; border-radius: 8px;
+      font-size: 14px; cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-cancel:hover { background: #f5f5f5; }
+    .btn-submit {
+      padding: 9px 24px; background: #c8102e; color: white;
+      border: none; border-radius: 8px; font-size: 14px;
+      font-weight: bold; cursor: pointer; font-family: inherit;
+      transition: background 0.15s; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-submit:hover { background: #a50d26; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
     .leaflet-popup-content { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important; }
   </style>
 </head>
 <body>
+
 <div id="header">
   <div>
     <h1>CTR候補店舗 所在地マップ</h1>
@@ -140,13 +231,55 @@
     <button class="area-btn" onclick="flyTo(35.17,136.90,11,'中部')">中部</button>
     <button class="area-btn" onclick="flyTo(33.58,130.38,12,'九州')">九州</button>
   </div>
-  <div id="count-badge">全30店舗</div>
+  <button id="add-store-btn" onclick="openModal()">＋ 店舗を追加</button>
+  <div id="count-badge">全 <span id="store-count">30</span> 店舗</div>
 </div>
+
 <div id="main">
   <div id="map"></div>
   <div id="sidebar">
     <div id="sidebar-header">店舗一覧（クリックで移動）</div>
     <div id="store-list"></div>
+  </div>
+</div>
+
+<!-- 店舗追加モーダル -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div id="modal-header">
+      <h2>＋ 新しい店舗を追加</h2>
+      <button id="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+      <div class="form-group">
+        <label>店舗名 <span class="req">*</span></label>
+        <input type="text" id="input-name" placeholder="例：渋谷スクランブルスクエア" />
+        <div class="form-error" id="err-name">店舗名を入力してください</div>
+      </div>
+      <div class="form-group">
+        <label>都道府県 <span class="req">*</span></label>
+        <select id="input-pref">
+          <option value="">選択してください</option>
+          <option>東京都</option><option>大阪府</option><option>神奈川県</option>
+          <option>埼玉県</option><option>千葉県</option><option>愛知県</option>
+          <option>兵庫県</option><option>京都府</option><option>福岡県</option>
+          <option>北海道</option><option>宮城県</option><option>広島県</option>
+          <option>その他</option>
+        </select>
+        <div class="form-error" id="err-pref">都道府県を選択してください</div>
+      </div>
+      <div class="form-group">
+        <label>住所 <span class="req">*</span></label>
+        <input type="text" id="input-address" placeholder="例：東京都渋谷区渋谷2-24-12" />
+        <div class="form-hint">住所から自動で地図上の位置を取得します</div>
+        <div class="form-error" id="err-address">住所を入力してください</div>
+      </div>
+      <div id="geocode-status"></div>
+    </div>
+    <div id="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-submit" id="btn-add" onclick="addStore()">地図に追加</button>
+    </div>
   </div>
 </div>
 
@@ -185,185 +318,232 @@ const stores = [
 ];
 
 const prefColors = {
-  '東京都':   '#e74c3c',
-  '大阪府':   '#2980b9',
-  '神奈川県': '#27ae60',
-  '埼玉県':   '#e67e22',
-  '千葉県':   '#8e44ad',
-  '愛知県':   '#16a085',
-  '兵庫県':   '#c0a000',
-  '京都府':   '#9b59b6',
-  '福岡県':   '#1e8449'
+  '東京都':'#e74c3c','大阪府':'#2980b9','神奈川県':'#27ae60',
+  '埼玉県':'#e67e22','千葉県':'#8e44ad','愛知県':'#16a085',
+  '兵庫県':'#c0a000','京都府':'#9b59b6','福岡県':'#1e8449',
+  '北海道':'#2c3e50','宮城県':'#1abc9c','広島県':'#d35400','その他':'#7f8c8d'
 };
-function getColor(p) { return prefColors[p] || '#555'; }
+function getColor(p) { return prefColors[p] || '#7f8c8d'; }
 
-// ---- 近接マーカーの重なり解消（反復力学的配置） ----
-function applyOffsets(stores) {
-  // 各店舗の表示位置（初期値は実際の座標）
-  const pos = stores.map(s => ({ lat: s.lat, lng: s.lng }));
-
-  // ズームレベル8相当のピクセル距離換算係数
-  // 緯度1度 ≈ 111km、ズーム8で1度≈256px程度
-  const MIN_DIST_LAT = 0.06;  // 最低分離距離（緯度方向）
-  const MIN_DIST_LNG = 0.08;  // 最低分離距離（経度方向）
-  const ITER = 80;
-  const FORCE = 0.4;
-
-  for (let iter = 0; iter < ITER; iter++) {
+function applyOffsets(list) {
+  const pos = list.map(s => ({ lat: s.lat, lng: s.lng }));
+  const ML = 0.06, MG = 0.08, ITER = 80, F = 0.4;
+  for (let t = 0; t < ITER; t++) {
     for (let i = 0; i < pos.length; i++) {
-      for (let j = i + 1; j < pos.length; j++) {
-        const dlat = pos[i].lat - pos[j].lat;
-        const dlng = pos[i].lng - pos[j].lng;
-        // 正規化距離（楕円）
-        const nx = dlng / MIN_DIST_LNG;
-        const ny = dlat / MIN_DIST_LAT;
-        const dist = Math.sqrt(nx * nx + ny * ny);
-        if (dist < 1.0) {
-          // 重なっている → 互いに押しのける
-          const overlap = (1.0 - dist) * FORCE;
-          const ax = dist < 0.001 ? Math.random() * 2 - 1 : nx / dist;
-          const ay = dist < 0.001 ? Math.random() * 2 - 1 : ny / dist;
-          pos[i].lng += ax * overlap * MIN_DIST_LNG;
-          pos[i].lat += ay * overlap * MIN_DIST_LAT;
-          pos[j].lng -= ax * overlap * MIN_DIST_LNG;
-          pos[j].lat -= ay * overlap * MIN_DIST_LAT;
+      for (let j = i+1; j < pos.length; j++) {
+        const dl = pos[i].lat-pos[j].lat, dg = pos[i].lng-pos[j].lng;
+        const nx = dg/MG, ny = dl/ML, d = Math.sqrt(nx*nx+ny*ny);
+        if (d < 1) {
+          const ov = (1-d)*F;
+          const ax = d<0.001?Math.random()*2-1:nx/d;
+          const ay = d<0.001?Math.random()*2-1:ny/d;
+          pos[i].lng+=ax*ov*MG; pos[i].lat+=ay*ov*ML;
+          pos[j].lng-=ax*ov*MG; pos[j].lat-=ay*ov*ML;
         }
       }
     }
   }
-
-  return stores.map((s, i) => ({ ...s, dispLat: pos[i].lat, dispLng: pos[i].lng }));
+  return list.map((s,i) => ({...s, dispLat:pos[i].lat, dispLng:pos[i].lng}));
 }
 
-const offsetStores = applyOffsets(stores);
-
-// 地図初期化
-const map = L.map('map').setView([36.5, 137.0], 6);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  maxZoom: 19
+const offsetStores = applyOffsets([...stores]);
+const map = L.map('map').setView([36.5,137.0],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19
 }).addTo(map);
 
 const markers = [];
 
+function makeIcon(store, color, isNew=false) {
+  return L.divIcon({
+    className:'',
+    html:`<div style="display:flex;flex-direction:column;align-items:center;">
+      <div style="width:30px;height:30px;border-radius:50%;background:${color};color:white;
+        display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;
+        border:${isNew?'3px solid #2ecc71':'2.5px solid white'};
+        box-shadow:0 2px 6px rgba(0,0,0,0.45);cursor:pointer;">${store.no}</div>
+      <div style="margin-top:2px;background:rgba(255,255,255,0.93);color:#222;font-size:10px;
+        font-weight:bold;padding:1px 5px;border-radius:4px;white-space:nowrap;
+        box-shadow:0 1px 3px rgba(0,0,0,0.2);border:1px solid ${color}66;
+        pointer-events:none;max-width:88px;overflow:hidden;text-overflow:ellipsis;">${store.name}</div>
+    </div>`,
+    iconSize:[90,52], iconAnchor:[45,15], popupAnchor:[0,-18]
+  });
+}
+
+function makePopup(store, color) {
+  return `<div style="font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;min-width:210px;">
+    <div style="background:${color};color:white;padding:8px 12px;margin:-13px -20px 10px;border-radius:4px 4px 0 0;">
+      <strong style="font-size:15px;">No.${store.no}　${store.name}</strong>
+    </div>
+    <div style="padding:0 4px 4px;">
+      <div style="margin-bottom:5px;">
+        <span style="background:${color}22;color:${color};padding:2px 8px;border-radius:10px;font-weight:bold;font-size:12px;">${store.prefecture}</span>
+      </div>
+      <div style="font-size:12px;color:#444;line-height:1.6;">${store.address}</div>
+    </div>
+  </div>`;
+}
+
 offsetStores.forEach((store, idx) => {
   const color = getColor(store.prefecture);
-
-  const icon = L.divIcon({
-    className: '',
-    html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">
-      <div style="
-        width:30px;height:30px;border-radius:50%;
-        background:${color};color:white;
-        display:flex;align-items:center;justify-content:center;
-        font-size:12px;font-weight:bold;
-        border:2.5px solid white;
-        box-shadow:0 2px 6px rgba(0,0,0,0.45);
-        cursor:pointer;flex-shrink:0;
-      ">${store.no}</div>
-      <div style="
-        margin-top:2px;
-        background:rgba(255,255,255,0.93);
-        color:#222;
-        font-size:10px;
-        font-weight:bold;
-        padding:1px 5px;
-        border-radius:4px;
-        white-space:nowrap;
-        box-shadow:0 1px 3px rgba(0,0,0,0.2);
-        border:1px solid ${color}66;
-        pointer-events:none;
-        max-width:88px;
-        overflow:hidden;
-        text-overflow:ellipsis;
-      ">${store.name}</div>
-    </div>`,
-    iconSize: [90, 52],
-    iconAnchor: [45, 15],
-    popupAnchor: [0, -18]
-  });
-
-  const marker = L.marker([store.dispLat, store.dispLng], { icon });
-
-  marker.bindPopup(`
-    <div style="font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;min-width:210px;">
-      <div style="background:${color};color:white;padding:8px 12px;margin:-13px -20px 10px;border-radius:4px 4px 0 0;">
-        <strong style="font-size:15px;">No.${store.no}　${store.name}</strong>
-      </div>
-      <div style="padding:0 4px 4px;">
-        <div style="margin-bottom:5px;">
-          <span style="background:${color}22;color:${color};padding:2px 8px;border-radius:10px;font-weight:bold;font-size:12px;">${store.prefecture}</span>
-        </div>
-        <div style="font-size:12px;color:#444;line-height:1.6;">${store.address}</div>
-      </div>
-    </div>
-  `, { maxWidth: 290 });
-
-  marker.on('click', () => highlightSidebarItem(idx));
+  const marker = L.marker([store.dispLat, store.dispLng], {icon: makeIcon(store, color)});
+  marker.bindPopup(makePopup(store, color), {maxWidth:290});
+  marker.on('click', () => highlightItem(idx));
   marker.addTo(map);
   markers.push(marker);
 });
 
-// エリアボタン
-function flyTo(lat, lng, zoom, label) {
-  map.flyTo([lat, lng], zoom, { duration: 0.8 });
-  document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
-  if (label) {
-    document.querySelectorAll('.area-btn').forEach(b => {
-      if (b.textContent === label) b.classList.add('active');
-    });
-  }
-}
+const storeListEl = document.getElementById('store-list');
 
-// サイドバー生成
-const storeList = document.getElementById('store-list');
-stores.forEach((store, idx) => {
+function renderItem(store, idx, isNew=false) {
   const color = getColor(store.prefecture);
   const item = document.createElement('div');
-  item.className = 'store-item';
+  item.className = 'store-item' + (isNew?' new-store':'');
   item.id = `item-${idx}`;
   item.innerHTML = `
     <div class="store-dot" style="background:${color};">${store.no}</div>
     <div class="store-info">
-      <div class="store-no">No.${store.no}</div>
+      <div class="store-no">No.${store.no}${isNew?' <span style="color:#27ae60;font-weight:bold;font-size:10px;">NEW</span>':''}</div>
       <div class="store-name">${store.name}</div>
       <span class="pref-tag" style="background:${color}22;color:${color};">${store.prefecture}</span>
     </div>
+    <button class="delete-btn" title="削除" onclick="removeStore(${idx},event)">✕</button>
   `;
   item.addEventListener('click', () => {
-    map.flyTo([offsetStores[idx].dispLat, offsetStores[idx].dispLng], 13, { duration: 0.7 });
+    const os = offsetStores[idx];
+    map.flyTo([os.dispLat, os.dispLng], 13, {duration:0.7});
     setTimeout(() => markers[idx].openPopup(), 750);
-    highlightSidebarItem(idx);
+    highlightItem(idx);
   });
-  storeList.appendChild(item);
-});
+  return item;
+}
 
-function highlightSidebarItem(idx) {
+offsetStores.forEach((store, idx) => storeListEl.appendChild(renderItem(store, idx, false)));
+
+function highlightItem(idx) {
   document.querySelectorAll('.store-item').forEach(el => el.classList.remove('active'));
   const el = document.getElementById(`item-${idx}`);
-  if (el) {
-    el.classList.add('active');
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+  if (el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+}
+
+function flyTo(lat, lng, zoom, label) {
+  map.flyTo([lat,lng], zoom, {duration:0.8});
+  document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
+  if (label) document.querySelectorAll('.area-btn').forEach(b => { if(b.textContent===label) b.classList.add('active'); });
 }
 
 // 凡例
 const legendDiv = document.createElement('div');
 legendDiv.id = 'legend';
-let legendHTML = '<h3>都道府県</h3>';
-Object.entries(prefColors).forEach(([pref, color]) => {
-  const count = stores.filter(s => s.prefecture === pref).length;
-  legendHTML += `<div class="legend-item">
-    <div class="legend-dot" style="background:${color};"></div>
-    <span>${pref}（${count}店舗）</span>
-  </div>`;
+let lh = '<h3>都道府県</h3>';
+Object.entries(prefColors).slice(0,9).forEach(([pref,color]) => {
+  const cnt = stores.filter(s=>s.prefecture===pref).length;
+  if (cnt>0) lh += `<div class="legend-item"><div class="legend-dot" style="background:${color};"></div><span>${pref}（${cnt}店舗）</span></div>`;
 });
-legendDiv.innerHTML = legendHTML;
+legendDiv.innerHTML = lh;
 document.getElementById('map').appendChild(legendDiv);
+map.fitBounds(L.featureGroup(markers).getBounds().pad(0.06));
 
-// 全マーカーが収まるようにフィット
-const group = L.featureGroup(markers);
-map.fitBounds(group.getBounds().pad(0.06));
+// ===== 店舗追加 =====
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  ['input-name','input-pref','input-address'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const gs = document.getElementById('geocode-status');
+  gs.className = ''; gs.style.display = 'none';
+  ['err-name','err-pref','err-address'].forEach(id => document.getElementById(id).classList.remove('show'));
+  ['input-name','input-address'].forEach(id => document.getElementById(id).classList.remove('error'));
+  document.getElementById('btn-add').disabled = false;
+  setTimeout(() => document.getElementById('input-name').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+async function geocodeAddress(addr) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1&countrycodes=jp`;
+  const res = await fetch(url, {headers:{'Accept-Language':'ja'}});
+  const data = await res.json();
+  if (data && data.length > 0) return {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon)};
+  return null;
+}
+
+async function addStore() {
+  const name = document.getElementById('input-name').value.trim();
+  const pref = document.getElementById('input-pref').value;
+  const address = document.getElementById('input-address').value.trim();
+
+  let err = false;
+  if (!name) { document.getElementById('err-name').classList.add('show'); document.getElementById('input-name').classList.add('error'); err=true; }
+  else { document.getElementById('err-name').classList.remove('show'); document.getElementById('input-name').classList.remove('error'); }
+  if (!pref) { document.getElementById('err-pref').classList.add('show'); err=true; }
+  else { document.getElementById('err-pref').classList.remove('show'); }
+  if (!address) { document.getElementById('err-address').classList.add('show'); document.getElementById('input-address').classList.add('error'); err=true; }
+  else { document.getElementById('err-address').classList.remove('show'); document.getElementById('input-address').classList.remove('error'); }
+  if (err) return;
+
+  const gs = document.getElementById('geocode-status');
+  gs.className = 'loading'; gs.style.display = 'flex';
+  gs.innerHTML = '<div class="spinner"></div><span>住所から位置情報を取得中...</span>';
+  document.getElementById('btn-add').disabled = true;
+
+  const coords = await geocodeAddress(address);
+  if (!coords) {
+    gs.className = 'error';
+    gs.innerHTML = '⚠️ 住所から位置を特定できませんでした。住所を確認してください。';
+    document.getElementById('btn-add').disabled = false;
+    return;
+  }
+
+  gs.className = 'success';
+  gs.innerHTML = `✓ 位置を取得しました（緯度 ${coords.lat.toFixed(4)}, 経度 ${coords.lng.toFixed(4)}）`;
+
+  const newNo = offsetStores.length + 1;
+  const newStore = {no:newNo, name, prefecture:pref, address, lat:coords.lat, lng:coords.lng, dispLat:coords.lat, dispLng:coords.lng};
+  offsetStores.push(newStore);
+  const idx = offsetStores.length - 1;
+  const color = getColor(pref);
+
+  const marker = L.marker([coords.lat, coords.lng], {icon: makeIcon(newStore, color, true)});
+  marker.bindPopup(makePopup(newStore, color), {maxWidth:290});
+  marker.on('click', () => highlightItem(idx));
+  marker.addTo(map);
+  markers.push(marker);
+
+  storeListEl.appendChild(renderItem(newStore, idx, true));
+  document.getElementById('store-count').textContent = offsetStores.length;
+
+  setTimeout(() => {
+    closeModal();
+    map.flyTo([coords.lat, coords.lng], 14, {duration:0.8});
+    setTimeout(() => { marker.openPopup(); highlightItem(idx); }, 900);
+  }, 600);
+}
+
+function removeStore(idx, e) {
+  e.stopPropagation();
+  const storeName = offsetStores[idx] ? offsetStores[idx].name : '?';
+  if (!confirm(`「${storeName}」を地図から削除しますか？\n\nこの操作はページをリロードするまで有効です。`)) return;
+  map.removeLayer(markers[idx]);
+  markers.splice(idx, 1);
+  offsetStores.splice(idx, 1);
+  const el = document.getElementById(`item-${idx}`);
+  if (el) el.remove();
+  // IDと削除ボタンのonclickを振り直す
+  document.querySelectorAll('.store-item').forEach((el, i) => {
+    el.id = `item-${i}`;
+    const btn = el.querySelector('.delete-btn');
+    if (btn) btn.setAttribute('onclick', `removeStore(${i},event)`);
+  });
+  document.getElementById('store-count').textContent = offsetStores.length;
+}
 </script>
 </body>
 </html>
