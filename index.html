@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CTR候補店舗 所在地マップ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; background: #f5f5f5; }
+
+    #header {
+      background: #c8102e;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      position: relative;
+      z-index: 1000;
+    }
+    #header h1 { font-size: 19px; font-weight: bold; letter-spacing: 0.04em; }
+    #header .subtitle { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+    #count-badge {
+      margin-left: auto;
+      background: white;
+      color: #c8102e;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+
+    /* エリア切り替えボタン */
+    #area-btns {
+      display: flex;
+      gap: 6px;
+      margin-left: 16px;
+    }
+    .area-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .area-btn:hover, .area-btn.active { background: white; color: #c8102e; }
+
+    #main { display: flex; height: calc(100vh - 52px); }
+    #map { flex: 1; position: relative; }
+
+    #sidebar {
+      width: 270px;
+      background: white;
+      overflow-y: auto;
+      border-left: 1px solid #ddd;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.08);
+    }
+    #sidebar-header {
+      font-size: 12px;
+      color: #666;
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .store-item {
+      padding: 9px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .store-item:hover { background: #fff5f5; }
+    .store-item.active {
+      background: #ffeaea;
+      border-left: 3px solid #c8102e;
+      padding-left: 11px;
+    }
+    .store-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; color: white;
+      flex-shrink: 0;
+      border: 2px solid white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+    .store-info { flex: 1; min-width: 0; }
+    .store-no { font-size: 10px; color: #aaa; }
+    .store-name { font-size: 13px; font-weight: bold; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pref-tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    /* 凡例 */
+    #legend {
+      position: absolute;
+      bottom: 28px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 9px 13px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-size: 11px;
+    }
+    #legend h3 { font-size: 11px; color: #555; margin-bottom: 7px; font-weight: bold; }
+    .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .legend-dot { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; }
+
+    .leaflet-popup-content { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important; }
+  </style>
+</head>
+<body>
+<div id="header">
+  <div>
+    <h1>CTR候補店舗 所在地マップ</h1>
+    <div class="subtitle">CTR管理表より</div>
+  </div>
+  <div id="area-btns">
+    <button class="area-btn" onclick="flyTo(36.5,137.0,6,'')">全国</button>
+    <button class="area-btn" onclick="flyTo(35.68,139.70,10,'関東')">関東</button>
+    <button class="area-btn" onclick="flyTo(34.68,135.50,11,'関西')">関西</button>
+    <button class="area-btn" onclick="flyTo(35.17,136.90,11,'中部')">中部</button>
+    <button class="area-btn" onclick="flyTo(33.58,130.38,12,'九州')">九州</button>
+  </div>
+  <div id="count-badge">全30店舗</div>
+</div>
+<div id="main">
+  <div id="map"></div>
+  <div id="sidebar">
+    <div id="sidebar-header">店舗一覧（クリックで移動）</div>
+    <div id="store-list"></div>
+  </div>
+</div>
+
+<script>
+const stores = [
+  {"no":1,"name":"新宿東口","prefecture":"東京都","address":"〒160-0022 東京都新宿区新宿3-20-6","lat":35.692989,"lng":139.703064},
+  {"no":2,"name":"千日前","prefecture":"大阪府","address":"〒542-0074 大阪府大阪市中央区千日前2丁目8番23号","lat":34.666088,"lng":135.503296},
+  {"no":3,"name":"高田馬場","prefecture":"東京都","address":"〒169-0075 東京都新宿区高田馬場1-27-3ニュー竹宝ビル1F","lat":35.712273,"lng":139.70488},
+  {"no":4,"name":"お茶の水サンクレール","prefecture":"東京都","address":"〒101-0062 東京都千代田区神田駿河台4-3新お茶の水ビルディングB1F","lat":35.698803,"lng":139.765167},
+  {"no":5,"name":"渋谷センター街","prefecture":"東京都","address":"〒150-0042 東京都渋谷区宇田川町25-5センタービル1F","lat":35.660347,"lng":139.698914},
+  {"no":6,"name":"あべのルシアス","prefecture":"大阪府","address":"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目５番１号","lat":34.646484,"lng":135.512863},
+  {"no":7,"name":"相鉄横浜駅","prefecture":"神奈川県","address":"〒220-0005 神奈川県横浜市西区南幸一丁目5番1号","lat":35.464867,"lng":139.620514},
+  {"no":8,"name":"MEGAドン・キホーテ成増","prefecture":"東京都","address":"〒175-0094 東京都板橋区成増二丁目21番2号","lat":35.777725,"lng":139.630417},
+  {"no":9,"name":"リンクス梅田","prefecture":"大阪府","address":"〒530-0011 大阪府大阪市北区大深町1-1","lat":34.70417,"lng":135.497269},
+  {"no":10,"name":"大宮西口","prefecture":"埼玉県","address":"〒330-0854 埼玉県さいたま市大宮区桜木町1-6-2 大宮そごうビル内専門店街1F","lat":35.904758,"lng":139.62207},
+  {"no":11,"name":"自由が丘","prefecture":"東京都","address":"〒152-0035 東京都目黒区自由が丘二丁目11番9号","lat":35.607307,"lng":139.667633},
+  {"no":12,"name":"則武新町","prefecture":"愛知県","address":"〒451-0051 愛知県名古屋市西区則武新町三丁目1番17号","lat":35.17942,"lng":136.881836},
+  {"no":13,"name":"谷町四丁目駅前","prefecture":"大阪府","address":"〒540-0026 大阪府大阪市中央区内本町１丁目2－15","lat":34.683281,"lng":135.516907},
+  {"no":14,"name":"本八幡","prefecture":"千葉県","address":"〒272-0023 千葉県市川市南八幡3丁目5番15号","lat":35.720417,"lng":139.927689},
+  {"no":15,"name":"川口栄町","prefecture":"埼玉県","address":"〒332-0017 埼玉県川口市栄町3-8-11","lat":35.802696,"lng":139.720245},
+  {"no":16,"name":"三宮いくたロード","prefecture":"兵庫県","address":"〒650-0021 兵庫県神戸市中央区三宮町1丁目6-12","lat":34.691002,"lng":135.192139},
+  {"no":17,"name":"コレットマーレみなとみらい","prefecture":"神奈川県","address":"〒231-0062 神奈川県横浜市中区桜木町1-1-7","lat":35.453564,"lng":139.629242},
+  {"no":18,"name":"京都ヨドバシ","prefecture":"京都府","address":"〒600-8216 京都府京都市下京区烏丸通七条下る東塩小路町590-2","lat":34.992943,"lng":135.759583},
+  {"no":19,"name":"所沢トコトコスクエア","prefecture":"埼玉県","address":"〒359-1116 埼玉県所沢市東町5-22","lat":35.789097,"lng":139.470337},
+  {"no":20,"name":"海老名駅前","prefecture":"神奈川県","address":"〒243-0432 神奈川県海老名市中央1-3-7","lat":35.452106,"lng":139.391815},
+  {"no":21,"name":"荻窪南口","prefecture":"東京都","address":"〒167-0051 東京都杉並区荻窪5丁目30番6号","lat":35.703796,"lng":139.62149},
+  {"no":22,"name":"蒲田駅東口","prefecture":"東京都","address":"〒144-0052 東京都大田区蒲田五丁目8番7号","lat":35.562958,"lng":139.719269},
+  {"no":23,"name":"六本松駅前","prefecture":"福岡県","address":"〒810-0044 福岡県福岡市中央区六本松2丁目5-1","lat":33.578415,"lng":130.378357},
+  {"no":24,"name":"大須","prefecture":"愛知県","address":"〒460-0011 愛知県名古屋市中区大須3-30-32","lat":35.159447,"lng":136.905884},
+  {"no":25,"name":"ららぽーと安城","prefecture":"愛知県","address":"〒446-0065 愛知県安城市大東町9-30","lat":34.965435,"lng":137.082703},
+  {"no":26,"name":"関目高殿","prefecture":"大阪府","address":"〒536-0007 大阪府大阪市城東区成育5丁目23-12","lat":34.715172,"lng":135.54631},
+  {"no":27,"name":"JR西宮","prefecture":"兵庫県","address":"〒662-0911 兵庫県西宮市池田町9-7","lat":34.738609,"lng":135.347382},
+  {"no":28,"name":"千葉駅前","prefecture":"千葉県","address":"〒260-0015 千葉県千葉市中央区富士見2－1－2","lat":35.611919,"lng":140.115631},
+  {"no":29,"name":"春日部駅前","prefecture":"埼玉県","address":"〒344-0067 埼玉県春日部市中央1-2-1","lat":35.978428,"lng":139.751602},
+  {"no":30,"name":"川崎ゼロゲート","prefecture":"神奈川県","address":"〒210-0023 神奈川県川崎市川崎区小川町1-1川崎ゼロゲート1F","lat":35.528835,"lng":139.697815}
+];
+
+const prefColors = {
+  '東京都':   '#e74c3c',
+  '大阪府':   '#2980b9',
+  '神奈川県': '#27ae60',
+  '埼玉県':   '#e67e22',
+  '千葉県':   '#8e44ad',
+  '愛知県':   '#16a085',
+  '兵庫県':   '#c0a000',
+  '京都府':   '#9b59b6',
+  '福岡県':   '#1e8449'
+};
+function getColor(p) { return prefColors[p] || '#555'; }
+
+// ---- 近接マーカーの重なり解消（反復力学的配置） ----
+function applyOffsets(stores) {
+  // 各店舗の表示位置（初期値は実際の座標）
+  const pos = stores.map(s => ({ lat: s.lat, lng: s.lng }));
+
+  // ズームレベル8相当のピクセル距離換算係数
+  // 緯度1度 ≈ 111km、ズーム8で1度≈256px程度
+  const MIN_DIST_LAT = 0.06;  // 最低分離距離（緯度方向）
+  const MIN_DIST_LNG = 0.08;  // 最低分離距離（経度方向）
+  const ITER = 80;
+  const FORCE = 0.4;
+
+  for (let iter = 0; iter < ITER; iter++) {
+    for (let i = 0; i < pos.length; i++) {
+      for (let j = i + 1; j < pos.length; j++) {
+        const dlat = pos[i].lat - pos[j].lat;
+        const dlng = pos[i].lng - pos[j].lng;
+        // 正規化距離（楕円）
+        const nx = dlng / MIN_DIST_LNG;
+        const ny = dlat / MIN_DIST_LAT;
+        const dist = Math.sqrt(nx * nx + ny * ny);
+        if (dist < 1.0) {
+          // 重なっている → 互いに押しのける
+          const overlap = (1.0 - dist) * FORCE;
+          const ax = dist < 0.001 ? Math.random() * 2 - 1 : nx / dist;
+          const ay = dist < 0.001 ? Math.random() * 2 - 1 : ny / dist;
+          pos[i].lng += ax * overlap * MIN_DIST_LNG;
+          pos[i].lat += ay * overlap * MIN_DIST_LAT;
+          pos[j].lng -= ax * overlap * MIN_DIST_LNG;
+          pos[j].lat -= ay * overlap * MIN_DIST_LAT;
+        }
+      }
+    }
+  }
+
+  return stores.map((s, i) => ({ ...s, dispLat: pos[i].lat, dispLng: pos[i].lng }));
+}
+
+const offsetStores = applyOffsets(stores);
+
+// 地図初期化
+const map = L.map('map').setView([36.5, 137.0], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19
+}).addTo(map);
+
+const markers = [];
+
+offsetStores.forEach((store, idx) => {
+  const color = getColor(store.prefecture);
+
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+      <div style="
+        width:30px;height:30px;border-radius:50%;
+        background:${color};color:white;
+        display:flex;align-items:center;justify-content:center;
+        font-size:12px;font-weight:bold;
+        border:2.5px solid white;
+        box-shadow:0 2px 6px rgba(0,0,0,0.45);
+        cursor:pointer;flex-shrink:0;
+      ">${store.no}</div>
+      <div style="
+        margin-top:2px;
+        background:rgba(255,255,255,0.93);
+        color:#222;
+        font-size:10px;
+        font-weight:bold;
+        padding:1px 5px;
+        border-radius:4px;
+        white-space:nowrap;
+        box-shadow:0 1px 3px rgba(0,0,0,0.2);
+        border:1px solid ${color}66;
+        pointer-events:none;
+        max-width:88px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      ">${store.name}</div>
+    </div>`,
+    iconSize: [90, 52],
+    iconAnchor: [45, 15],
+    popupAnchor: [0, -18]
+  });
+
+  const marker = L.marker([store.dispLat, store.dispLng], { icon });
+
+  marker.bindPopup(`
+    <div style="font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;min-width:210px;">
+      <div style="background:${color};color:white;padding:8px 12px;margin:-13px -20px 10px;border-radius:4px 4px 0 0;">
+        <strong style="font-size:15px;">No.${store.no}　${store.name}</strong>
+      </div>
+      <div style="padding:0 4px 4px;">
+        <div style="margin-bottom:5px;">
+          <span style="background:${color}22;color:${color};padding:2px 8px;border-radius:10px;font-weight:bold;font-size:12px;">${store.prefecture}</span>
+        </div>
+        <div style="font-size:12px;color:#444;line-height:1.6;">${store.address}</div>
+      </div>
+    </div>
+  `, { maxWidth: 290 });
+
+  marker.on('click', () => highlightSidebarItem(idx));
+  marker.addTo(map);
+  markers.push(marker);
+});
+
+// エリアボタン
+function flyTo(lat, lng, zoom, label) {
+  map.flyTo([lat, lng], zoom, { duration: 0.8 });
+  document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
+  if (label) {
+    document.querySelectorAll('.area-btn').forEach(b => {
+      if (b.textContent === label) b.classList.add('active');
+    });
+  }
+}
+
+// サイドバー生成
+const storeList = document.getElementById('store-list');
+stores.forEach((store, idx) => {
+  const color = getColor(store.prefecture);
+  const item = document.createElement('div');
+  item.className = 'store-item';
+  item.id = `item-${idx}`;
+  item.innerHTML = `
+    <div class="store-dot" style="background:${color};">${store.no}</div>
+    <div class="store-info">
+      <div class="store-no">No.${store.no}</div>
+      <div class="store-name">${store.name}</div>
+      <span class="pref-tag" style="background:${color}22;color:${color};">${store.prefecture}</span>
+    </div>
+  `;
+  item.addEventListener('click', () => {
+    map.flyTo([offsetStores[idx].dispLat, offsetStores[idx].dispLng], 13, { duration: 0.7 });
+    setTimeout(() => markers[idx].openPopup(), 750);
+    highlightSidebarItem(idx);
+  });
+  storeList.appendChild(item);
+});
+
+function highlightSidebarItem(idx) {
+  document.querySelectorAll('.store-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(`item-${idx}`);
+  if (el) {
+    el.classList.add('active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// 凡例
+const legendDiv = document.createElement('div');
+legendDiv.id = 'legend';
+let legendHTML = '<h3>都道府県</h3>';
+Object.entries(prefColors).forEach(([pref, color]) => {
+  const count = stores.filter(s => s.prefecture === pref).length;
+  legendHTML += `<div class="legend-item">
+    <div class="legend-dot" style="background:${color};"></div>
+    <span>${pref}（${count}店舗）</span>
+  </div>`;
+});
+legendDiv.innerHTML = legendHTML;
+document.getElementById('map').appendChild(legendDiv);
+
+// 全マーカーが収まるようにフィット
+const group = L.featureGroup(markers);
+map.fitBounds(group.getBounds().pad(0.06));
+</script>
+</body>
+</html>
