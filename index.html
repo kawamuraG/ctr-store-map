@@ -437,6 +437,30 @@ legendDiv.innerHTML = lh;
 document.getElementById('map').appendChild(legendDiv);
 map.fitBounds(L.featureGroup(markers).getBounds().pad(0.06));
 
+// 凡例を動的に更新する関数
+function updateLegend() {
+  const legendDiv = document.getElementById('legend');
+  if (!legendDiv) return;
+  // 現在の全店舗から都道府県別カウントを集計
+  const counts = {};
+  offsetStores.forEach(s => {
+    counts[s.prefecture] = (counts[s.prefecture] || 0) + 1;
+  });
+  let lh = '<h3>都道府県</h3>';
+  // prefColorsの順序で表示（件数が0の都道府県は非表示）
+  Object.entries(prefColors).forEach(([pref, color]) => {
+    const cnt = counts[pref] || 0;
+    if (cnt > 0) lh += `<div class="legend-item"><div class="legend-dot" style="background:${color};"></div><span>${pref}（${cnt}店舗）</span></div>`;
+  });
+  // prefColorsにない都道府県（追加店舗など）も表示
+  Object.entries(counts).forEach(([pref, cnt]) => {
+    if (!prefColors[pref] && cnt > 0) {
+      lh += `<div class="legend-item"><div class="legend-dot" style="background:${getColor(pref)};"></div><span>${pref}（${cnt}店舗）</span></div>`;
+    }
+  });
+  legendDiv.innerHTML = lh;
+}
+
 // ===== 店舗追加 =====
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
@@ -572,6 +596,7 @@ async function addStore() {
 
   storeListEl.appendChild(renderItem(newStore, idx, true));
   document.getElementById('store-count').textContent = offsetStores.length;
+  updateLegend();
 
   setTimeout(() => {
     closeModal();
@@ -596,6 +621,7 @@ function removeStore(idx, e) {
     if (btn) btn.setAttribute('onclick', `removeStore(${i},event)`);
   });
   document.getElementById('store-count').textContent = offsetStores.length;
+  updateLegend();
 }
 </script>
 </body>
