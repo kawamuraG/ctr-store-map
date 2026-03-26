@@ -489,17 +489,37 @@ function normalizeAddress(addr) {
 
 async function geocodeAddress(addr) {
   addr = normalizeAddress(addr);
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1&countrycodes=jp&addressdetails=1`;
-  const res = await fetch(url, {headers:{'Accept-Language':'ja'}});
-  const data = await res.json();
-  if (data && data.length > 0) {
-    // Nominatimのaddressdetailsから都道府県を取得、なければ住所文字列から抽出
-    const a = data[0].address || {};
-    const prefFromApi = a.state || a.province || a.county || '';
-    const prefFromAddr = extractPrefecture(addr);
-    const pref = prefFromAddr !== 'その他' ? prefFromAddr :
-                 (prefFromApi ? prefFromApi : 'その他');
-    return {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), pref};
+  const prefFromAddr = extractPrefecture(addr);
+
+  // 住所を段階的に短縮して再検索する候補リストを作成
+  const candidates = [addr];
+
+  // 番地（数字-数字）を除去したバージョン
+  const noHouseNum = addr.replace(/\d+-\d+(-\d+)?$/, '').replace(/\d+$/, '').trim();
+  if (noHouseNum !== addr) candidates.push(noHouseNum);
+
+  // 丁目以降を除去したバージョン
+  const noChome = addr.replace(/\d+丁目.*$/, '').replace(/\d+番.*$/, '').trim();
+  if (noChome !== addr && noChome !== noHouseNum) candidates.push(noChome);
+
+  // 区・町・村までのバージョン（最後の数字・記号を除去）
+  const cityOnly = addr.replace(/[\d一二三四五六七八九十]+丁目.*$/, '').trim();
+  if (cityOnly !== addr && cityOnly.length > 3) candidates.push(cityOnly);
+
+  for (const q of candidates) {
+    if (!q) continue;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1&countrycodes=jp&addressdetails=1`;
+    const res = await fetch(url, {headers:{'Accept-Language':'ja'}});
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const a = data[0].address || {};
+      const prefFromApi = a.state || a.province || a.county || '';
+      const pref = prefFromAddr !== 'その他' ? prefFromAddr :
+                   (prefFromApi ? prefFromApi : 'その他');
+      return {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), pref};
+    }
+    // Nominatimのレートリミット回避のため少待機
+    await new Promise(r => setTimeout(r, 300));
   }
   return null;
 }
